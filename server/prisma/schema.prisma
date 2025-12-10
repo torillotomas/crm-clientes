@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  clients   Client[]
+  notes     ClientNote[] 
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  status    String   @default("ACTIVE")
+  tags      String   @default("")  
+  nextContact DateTime?   
+  owner     User?    @relation(fields: [ownerId], references: [id])
+  ownerId   Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  notes     ClientNote[]
+}
+
+model ClientNote {
+  id        Int      @id @default(autoincrement())
+  content   String
+  type      String   @default("NOTE") // NOTE, CALL, EMAIL, MEETING, etc.
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  Int
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  createdAt DateTime @default(now())
+}
